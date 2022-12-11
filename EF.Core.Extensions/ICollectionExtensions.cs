@@ -1,4 +1,4 @@
-﻿namespace Extensions.Core;
+﻿namespace EF.Core.Extensions;
 
 public static class ICollectionExtensions
 {
@@ -25,29 +25,19 @@ public static class ICollectionExtensions
     public static void AddRangeIfNotContains<T>(this ICollection<T> @this, params T[] values)
     {
         foreach (T value in values)
-        {
             if (!@this.Contains(value))
-            {
                 @this.Add(value);
-            }
-        }
     }
     public static void AddRangeIf<T>(this ICollection<T> @this, Func<T, bool> predicate, params T[] values)
     {
         foreach (T value in values)
-        {
             if (predicate(value))
-            {
                 @this.Add(value);
-            }
-        }
     }
     public static void AddRange<T>(this ICollection<T> @this, params T[] values)
     {
         foreach (T value in values)
-        {
             @this.Add(value);
-        }
     }
 
 }

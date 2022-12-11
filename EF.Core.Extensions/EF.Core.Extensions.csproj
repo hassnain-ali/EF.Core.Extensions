@@ -5,8 +5,10 @@
 		<Nullable>enable</Nullable>
 		<LangVersion>Latest</LangVersion>
 		<ImplicitUsings>enable</ImplicitUsings>
-		<Description>A pack of extensions for Services Container DI and Application builder (Middlewares)
-it also includes the repository built on top of Entity Framework Code</Description>
+		<Description>
+			A pack of extensions for Services Container DI and Application builder (Middlewares)
+			it also includes the repository built on top of Entity Framework Code
+		</Description>
 		<Copyright>All rights reserved</Copyright>
 		<PackageProjectUrl>https://github.com/hassnain-ali/EF.Core.Extensions</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/hassnain-ali/EF.Core.Extensions</RepositoryUrl>
@@ -15,32 +17,34 @@ it also includes the repository built on top of Entity Framework Code</Descripti
 		<PackageReleaseNotes>Initial bundle containes extensions for EF core and Linq</PackageReleaseNotes>
 		<NeutralLanguage>en</NeutralLanguage>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-		<Title>EF.Core.Extensions</Title>
+		<Title>Extensions.Core</Title>
 		<Authors>Hassnain Ali</Authors>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<AssemblyVersion>1.0.1</AssemblyVersion>
+		<FileVersion>1.0.1</FileVersion>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net6.0|AnyCPU'">
-	  <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+		<CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net6.0|AnyCPU'">
-	  <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+		<CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net7.0|AnyCPU'">
-	  <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+		<CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net7.0|AnyCPU'">
-	  <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+		<CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
 	</PropertyGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
 		<PackageReference Include="Microsoft.EntityFrameworkCore">
-			<Version>7.0.0</Version>
+			<Version>6.0.0</Version>
 		</PackageReference>
 	</ItemGroup>
 
@@ -51,14 +55,14 @@ it also includes the repository built on top of Entity Framework Code</Descripti
 	</ItemGroup>
 
 	<ItemGroup>
-	  <None Include="..\README.md">
-	    <Pack>True</Pack>
-	    <PackagePath>\</PackagePath>
-	  </None>
+		<None Include="..\README.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
 	</ItemGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" />
+	  <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
 	</ItemGroup>
 
 </Project>

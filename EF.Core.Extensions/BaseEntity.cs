@@ -1,8 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace EF.Core.Extensions;
-
-#if NET6_0_OR_GREATER
+﻿namespace EF.Core.Extensions;
 
 public abstract record BaseEntity
 {
@@ -14,5 +10,3 @@ public abstract record BaseEntity
     [Key]
     public virtual Guid Id { get; set; }
 }
-
-#endif

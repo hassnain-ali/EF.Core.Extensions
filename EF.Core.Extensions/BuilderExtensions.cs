@@ -1,8 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿namespace EF.Core.Extensions;
 
-namespace EF.Core.Extensions;
-
-#if NET6_0_OR_GREATER
 public static class BuilderExtensions
 {
     public static IServiceCollection AddIf<Tservice, Timplimentation>(this IServiceCollection services,
@@ -72,5 +69,3 @@ public static class BuilderExtensions
             : services;
 
 }
-
-#endif

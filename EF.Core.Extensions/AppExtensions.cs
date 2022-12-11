@@ -1,23 +1,32 @@
-﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
+﻿namespace EF.Core.Extensions;
 
-namespace EF.Core.Extensions;
-
-#if NET6_0_OR_GREATER
 public static class AppExtensions
 {
-    public static IApplicationBuilder AddIf(this IApplicationBuilder app,
+    public static IApplicationBuilder UseIf(this IApplicationBuilder app,
         bool condition,
         Func<RequestDelegate, RequestDelegate> middleware)
         => condition
             ? app.Use(middleware)
             : app;
 
-    public static IApplicationBuilder AddIf(this IApplicationBuilder app,
+    public static IApplicationBuilder UseIf(this IApplicationBuilder app,
         Func<bool> condition,
         Func<RequestDelegate, RequestDelegate> middleware)
         => condition()
             ? app.Use(middleware)
             : app;
+
+    public static IApplicationBuilder UseIf(this IApplicationBuilder app,
+        bool condition,
+        Func<HttpContext, Func<Task>, Task> middleware)
+        => condition
+            ? app.Use(middleware)
+            : app;
+
+    public static IApplicationBuilder UseIf(this IApplicationBuilder app,
+        Func<bool> condition,
+        Func<HttpContext, Func<Task>, Task> middleware)
+        => condition()
+            ? app.Use(middleware)
+            : app;
 }
-#endif

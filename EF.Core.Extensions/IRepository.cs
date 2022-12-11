@@ -3,8 +3,6 @@ using System.Linq.Expressions;
 
 namespace EF.Core.Extensions;
 
-#if NET6_0_OR_GREATER
-
 public interface IRepository<TContext, T> where T : BaseEntity, new()
     where TContext : DbContext
 {
@@ -25,7 +23,7 @@ public interface IRepository<TContext, T> where T : BaseEntity, new()
     DbSet<T> Table { get; }
     IQueryable<T> Values { get; }
 }
-public sealed class Repository<TContext, T> : IRepository<TContext, T>, IDisposable, IAsyncDisposable
+public class Repository<TContext, T> : IRepository<TContext, T>, IDisposable, IAsyncDisposable
     where T : BaseEntity, new()
     where TContext : DbContext
 {
@@ -34,79 +32,86 @@ public sealed class Repository<TContext, T> : IRepository<TContext, T>, IDisposa
         Context = context;
         Table = context.Set<T>();
     }
-    public DbSet<T> Table { get; }
+    public virtual DbSet<T> Table { get; private set; }
 
-    public IQueryable<T> Values => Table.AsNoTracking();
+    public virtual IQueryable<T> Values => Table.AsNoTracking();
 
-    public TContext Context { get; }
+    public virtual TContext Context { get; private set; }
 
-    public async Task<(T, int)> Delete(T entity, CancellationToken token = default)
+    public virtual async Task<(T, int)> Delete(T entity, CancellationToken token = default)
     {
-        Table.Remove(entity);
+        _ = Table.Remove(entity);
         return (entity, await Context.SaveChangesAsync(token));
     }
-    public async Task<(T?, int)> Delete(Guid id, CancellationToken token = default)
+    public virtual async Task<(T?, int)> Delete(Guid id, CancellationToken token = default)
     {
-        var entity = await Table.FindAsync(new object?[] { id }, cancellationToken: token);
+        T? entity = await Table.FindAsync(new object?[] { id }, cancellationToken: token);
         if (entity == null)
         {
             return (null, 0);
         }
-        Table.Remove(entity);
+        _ = Table.Remove(entity);
         return (entity, await Context.SaveChangesAsync(token));
     }
-    public async Task<(T?, int)> Delete(Expression<Func<T, bool>> expression, CancellationToken token = default)
+    public virtual async Task<(T?, int)> Delete(Expression<Func<T, bool>> expression, CancellationToken token = default)
     {
-        var entity = await Table.FirstOrDefaultAsync(expression, token);
+        T? entity = await Table.FirstOrDefaultAsync(expression, token);
         if (entity == null)
         {
             return (null, 0);
         }
-        Table.Remove(entity);
+        _ = Table.Remove(entity);
         return (entity, await Context.SaveChangesAsync(token));
     }
-    public async Task<(IEnumerable<T>, int)> DeleteRange(IEnumerable<T> entity, CancellationToken token = default)
+    public virtual async Task<(IEnumerable<T>, int)> DeleteRange(IEnumerable<T> entity, CancellationToken token = default)
     {
         Table.RemoveRange(entity);
         return (entity, await Context.SaveChangesAsync(token));
     }
-    public async Task<(IEnumerable<T>, int)> DeleteRange(IEnumerable<Guid> id, CancellationToken token = default)
+    public virtual async Task<(IEnumerable<T>, int)> DeleteRange(IEnumerable<Guid> id, CancellationToken token = default)
     {
-        var entities = Table.Where(s => id.Contains(s.Id));
+        IQueryable<T> entities = Table.Where(s => id.Contains(s.Id));
         Table.RemoveRange(entities);
         return (entities, await Context.SaveChangesAsync(token));
     }
-    public async Task<(IEnumerable<T>, int)> DeleteRange(Expression<Func<T, bool>> expression, CancellationToken token = default)
+    public virtual async Task<(IEnumerable<T>, int)> DeleteRange(Expression<Func<T, bool>> expression, CancellationToken token = default)
     {
-        var entities = Table.Where(expression);
+        IQueryable<T> entities = Table.Where(expression);
         Table.RemoveRange(entities);
         return (entities, await Context.SaveChangesAsync(token));
     }
-    public async Task<T?> Get(Guid id, CancellationToken token = default) => await Table.SingleOrDefaultAsync(s => s.Id == id, token);
-    public async Task<(T, int)> Insert(T entity, CancellationToken token)
+    public virtual async Task<T?> Get(Guid id, CancellationToken token = default) => await Table.SingleOrDefaultAsync(s => s.Id == id, token);
+    public virtual async Task<(T, int)> Insert(T entity, CancellationToken token)
     {
-        await Table.AddAsync(entity, token);
+        _ = await Table.AddAsync(entity, token);
         return (entity, await Context.SaveChangesAsync(token));
     }
-    public async Task<(IEnumerable<T>, int)> InsertRange(IEnumerable<T> entity, CancellationToken token = default)
+    public virtual async Task<(IEnumerable<T>, int)> InsertRange(IEnumerable<T> entity, CancellationToken token = default)
     {
         await Table.AddRangeAsync(entity, token);
         return (entity, await Context.SaveChangesAsync(token));
     }
-    public async Task<IList<T>> List(CancellationToken token = default) => await Table.ToListAsync(token);
-    public async Task<IList<T>> List(Expression<Func<T, bool>> expression, CancellationToken token = default) => await Table.Where(expression).ToListAsync(token);
-    public async Task<(T, int)> Update(T entity, CancellationToken token = default)
+    public virtual async Task<IList<T>> List(CancellationToken token = default) => await Table.ToListAsync(token);
+    public virtual async Task<IList<T>> List(Expression<Func<T, bool>> expression, CancellationToken token = default) => await Table.Where(expression).ToListAsync(token);
+    public virtual async Task<(T, int)> Update(T entity, CancellationToken token = default)
     {
-        Table.Update(entity);
+        _ = Table.Update(entity);
         return (entity, await Context.SaveChangesAsync(token));
     }
-    public async Task<(IEnumerable<T>, int)> UpdateRange(IEnumerable<T> entity, CancellationToken token = default)
+    public virtual async Task<(IEnumerable<T>, int)> UpdateRange(IEnumerable<T> entity, CancellationToken token = default)
     {
         Table.UpdateRange(entity);
         return (entity, await Context.SaveChangesAsync(token));
     }
 
-    public void Dispose() => Context.Dispose();
-    public ValueTask DisposeAsync() => Context.DisposeAsync();
+    public void Dispose()
+    {
+        GC.SuppressFinalize(this);
+        Context.Dispose();
+    }
+    public ValueTask DisposeAsync()
+    {
+        GC.SuppressFinalize(this);
+        return Context.DisposeAsync();
+    }
 }
-#endif
