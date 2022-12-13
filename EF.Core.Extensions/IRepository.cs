@@ -1,12 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System.Linq.Expressions;
+﻿namespace EF.Core.Extensions;
 
-namespace EF.Core.Extensions;
-
-public interface IRepository<TContext, T> where T : BaseEntity, new()
+public interface IRepository<TContext, T, Tkey>
     where TContext : DbContext
+    where T : class, IBaseEntity<Tkey>
+    where Tkey : IEquatable<Tkey>
 {
-    Task<T?> Get(Guid id, CancellationToken token = default);
+    Task<T?> Get(Tkey id, CancellationToken token = default);
     Task<IList<T>> List(CancellationToken token = default);
     Task<IList<T>> List(Expression<Func<T, bool>> expression, CancellationToken token = default);
     Task<(T, int)> Insert(T entity, CancellationToken token = default);
@@ -14,18 +13,19 @@ public interface IRepository<TContext, T> where T : BaseEntity, new()
     Task<(T, int)> Update(T entity, CancellationToken token = default);
     Task<(IEnumerable<T>, int)> UpdateRange(IEnumerable<T> entity, CancellationToken token = default);
     Task<(T, int)> Delete(T entity, CancellationToken token = default);
-    Task<(T?, int)> Delete(Guid id, CancellationToken token = default);
+    Task<(T?, int)> Delete(Tkey id, CancellationToken token = default);
     Task<(T?, int)> Delete(Expression<Func<T, bool>> expression, CancellationToken token = default);
     Task<(IEnumerable<T>, int)> DeleteRange(IEnumerable<T> entity, CancellationToken token = default);
-    Task<(IEnumerable<T>, int)> DeleteRange(IEnumerable<Guid> id, CancellationToken token = default);
+    Task<(IEnumerable<T>, int)> DeleteRange(IEnumerable<Tkey> id, CancellationToken token = default);
     Task<(IEnumerable<T>, int)> DeleteRange(Expression<Func<T, bool>> expression, CancellationToken token = default);
     TContext Context { get; }
     DbSet<T> Table { get; }
     IQueryable<T> Values { get; }
 }
-public class Repository<TContext, T> : IRepository<TContext, T>, IDisposable, IAsyncDisposable
-    where T : BaseEntity, new()
+public class Repository<TContext, T, TKey> : IRepository<TContext, T, TKey>, IDisposable, IAsyncDisposable
     where TContext : DbContext
+    where T : class, IBaseEntity<TKey>
+    where TKey : IEquatable<TKey>
 {
     public Repository(TContext context)
     {
@@ -43,7 +43,7 @@ public class Repository<TContext, T> : IRepository<TContext, T>, IDisposable, IA
         _ = Table.Remove(entity);
         return (entity, await Context.SaveChangesAsync(token));
     }
-    public virtual async Task<(T?, int)> Delete(Guid id, CancellationToken token = default)
+    public virtual async Task<(T?, int)> Delete(TKey id, CancellationToken token = default)
     {
         T? entity = await Table.FindAsync(new object?[] { id }, cancellationToken: token);
         if (entity == null)
@@ -68,7 +68,7 @@ public class Repository<TContext, T> : IRepository<TContext, T>, IDisposable, IA
         Table.RemoveRange(entity);
         return (entity, await Context.SaveChangesAsync(token));
     }
-    public virtual async Task<(IEnumerable<T>, int)> DeleteRange(IEnumerable<Guid> id, CancellationToken token = default)
+    public virtual async Task<(IEnumerable<T>, int)> DeleteRange(IEnumerable<TKey> id, CancellationToken token = default)
     {
         IQueryable<T> entities = Table.Where(s => id.Contains(s.Id));
         Table.RemoveRange(entities);
@@ -80,7 +80,7 @@ public class Repository<TContext, T> : IRepository<TContext, T>, IDisposable, IA
         Table.RemoveRange(entities);
         return (entities, await Context.SaveChangesAsync(token));
     }
-    public virtual async Task<T?> Get(Guid id, CancellationToken token = default) => await Table.SingleOrDefaultAsync(s => s.Id == id, token);
+    public virtual async Task<T?> Get(TKey id, CancellationToken token = default) => await Table.SingleOrDefaultAsync(s => s.Id.Equals(id), token);
     public virtual async Task<(T, int)> Insert(T entity, CancellationToken token)
     {
         _ = await Table.AddAsync(entity, token);

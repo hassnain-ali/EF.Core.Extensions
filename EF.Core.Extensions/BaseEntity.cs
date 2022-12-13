@@ -1,12 +1,12 @@
 ﻿namespace EF.Core.Extensions;
 
-public abstract record BaseEntity
-{
-    public BaseEntity()
-    {
-        Id = Guid.NewGuid();
-    }
+//public abstract record BaseEntity : IBaseEntity<Guid>
+//{
+//    public BaseEntity()
+//    {
+//        Id = Guid.NewGuid();
+//    }
 
-    [Key]
-    public virtual Guid Id { get; set; }
-}
+//    [Key]
+//    public virtual Guid Id { get; set; }
+//}
