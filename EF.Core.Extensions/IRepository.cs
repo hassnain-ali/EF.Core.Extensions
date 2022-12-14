@@ -1,6 +1,6 @@
 ﻿namespace EF.Core.Extensions;
 
-public interface IRepository<TContext, T, Tkey>
+public interface IRepository<TContext, T, Tkey> : IDisposable, IAsyncDisposable
     where TContext : DbContext
     where T : class, IBaseEntity<Tkey>
     where Tkey : IEquatable<Tkey>
@@ -22,7 +22,10 @@ public interface IRepository<TContext, T, Tkey>
     DbSet<T> Table { get; }
     IQueryable<T> Values { get; }
 }
-public class Repository<TContext, T, TKey> : IRepository<TContext, T, TKey>, IDisposable, IAsyncDisposable
+
+public abstract partial class Repository<TContext, T, TKey> : IRepository<TContext, T, TKey>,
+    IDisposable,
+    IAsyncDisposable
     where TContext : DbContext
     where T : class, IBaseEntity<TKey>
     where TKey : IEquatable<TKey>
@@ -104,12 +107,12 @@ public class Repository<TContext, T, TKey> : IRepository<TContext, T, TKey>, IDi
         return (entity, await Context.SaveChangesAsync(token));
     }
 
-    public void Dispose()
+    public virtual void Dispose()
     {
         GC.SuppressFinalize(this);
         Context.Dispose();
     }
-    public ValueTask DisposeAsync()
+    public virtual ValueTask DisposeAsync()
     {
         GC.SuppressFinalize(this);
         return Context.DisposeAsync();
