@@ -83,7 +83,7 @@ public abstract partial class Repository<TContext, T, TKey> : IRepository<TConte
         Table.RemoveRange(entities);
         return (entities, await Context.SaveChangesAsync(token));
     }
-    public virtual async Task<T?> Get(TKey id, CancellationToken token = default) => await Table.SingleOrDefaultAsync(s => s.Id.Equals(id), token);
+    public virtual async Task<T?> Get(TKey id, CancellationToken token = default) => await Table.AsNoTracking().SingleOrDefaultAsync(s => s.Id.Equals(id), token);
     public virtual async Task<(T, int)> Insert(T entity, CancellationToken token)
     {
         _ = await Table.AddAsync(entity, token);
@@ -94,8 +94,8 @@ public abstract partial class Repository<TContext, T, TKey> : IRepository<TConte
         await Table.AddRangeAsync(entity, token);
         return (entity, await Context.SaveChangesAsync(token));
     }
-    public virtual async Task<IList<T>> List(CancellationToken token = default) => await Table.ToListAsync(token);
-    public virtual async Task<IList<T>> List(Expression<Func<T, bool>> expression, CancellationToken token = default) => await Table.Where(expression).ToListAsync(token);
+    public virtual async Task<IList<T>> List(CancellationToken token = default) => await Values.ToListAsync(token);
+    public virtual async Task<IList<T>> List(Expression<Func<T, bool>> expression, CancellationToken token = default) => await Values.Where(expression).ToListAsync(token);
     public virtual async Task<(T, int)> Update(T entity, CancellationToken token = default)
     {
         _ = Table.Update(entity);
